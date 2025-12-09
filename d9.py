@@ -7,7 +7,7 @@ with open("input9.txt", 'r') as ipt:
         coord_red.append([int(line.split(',')[0]), int(line.split(',')[1])])
 
 # print(coord_red)
-print(len(coord_red))
+# print(len(coord_red))
 tlen = len(coord_red)
 line_border = []
 
@@ -24,11 +24,11 @@ def linedef(coord1, coord2):
 for idx, coord in enumerate(coord_red):
     if idx == 0:
         l = linedef(coord_red[-1], coord_red[0])
-        print(f'{'x' if l[0] else 'y'}{'+' if (l[3]-l[2] > 0) else '-'}')
+        # print(f'{'x' if l[0] else 'y'}{'+' if (l[3]-l[2] > 0) else '-'}')
         line_border.append(l)
     else:
         l = linedef(coord_red[idx-1], coord_red[idx])
-        print(f'{'x' if l[0] else 'y'}{'+' if (l[3]-l[2] > 0) else '-'}')
+        # print(f'{'x' if l[0] else 'y'}{'+' if (l[3]-l[2] > 0) else '-'}')
         line_border.append(l)
 
 
@@ -54,8 +54,11 @@ def line_cross(l1, l2):
 #             print(f'Cross of l{i} and l{j} at {'x' if line_border[i][0] else 'y'}{line_border[i][1]},{'x' if line_border[j][0] else 'y'}{line_border[j][1]}')
 # print(max(lc.flatten()))
 # no intersect..
-def ainbc(a,b,c):
+
+
+def ainbc(a, b, c):
     return ((a-b)*(a-c))
+
 
 def tmpvalid(coord1, coord2, line_border):
     v = True
@@ -72,12 +75,12 @@ def tmpvalid(coord1, coord2, line_border):
                 return v
             match bline[0]:
                 case 0:
-                    if ainbc(bline[1],x1,x2)<0 and ainbc(bline[2],y1,y2)<=0 and ainbc(bline[3],y1,y2)<=0:
-                        v=False
+                    if ainbc(bline[1], x1, x2) < 0 and ainbc(bline[2], y1, y2) <= 0 and ainbc(bline[3], y1, y2) <= 0:
+                        v = False
                         return v
                 case 1:
-                    if ainbc(bline[1],y1,y2)<0 and ainbc(bline[2],x1,x2)<=0 and ainbc(bline[3],x1,x2)<=0:
-                        v=False
+                    if ainbc(bline[1], y1, y2) < 0 and ainbc(bline[2], x1, x2) <= 0 and ainbc(bline[3], x1, x2) <= 0:
+                        v = False
                         return v
     return v
 
@@ -85,18 +88,18 @@ def tmpvalid(coord1, coord2, line_border):
 dist = np.zeros((tlen, tlen))
 
 maxa = 0
-ai,aj=-1,-1
+ai, aj = -1, -1
 maxb = 0
-bi,bj=-1,-1
+bi, bj = -1, -1
 for i in range(tlen):
     for j in range(i, tlen):
         dist[i, j] = area_covered(coord_red[i], coord_red[j])
         if dist[i, j] > maxa:
             maxa = dist[i, j]
-            ai,aj=i,j
+            ai, aj = i, j
         if dist[i, j] > maxb and tmpvalid(coord_red[i], coord_red[j], line_border):
             maxb = dist[i, j]
-            bi,bj=i,j
+            bi, bj = i, j
 print("Q1", maxa)
 print("Q2", maxb)
-print(coord_red[bi],coord_red[bj])
+print(coord_red[bi], coord_red[bj])
