@@ -33,17 +33,19 @@ for n_con in nodes_con:
 
 def conn(node, con_matrix):
     return np.where(con_matrix[node, :])[0].tolist()
-def rev_conn(node,con_matrix):
-    return np.where(con_matrix[:,node])[0].tolist()
 
 
-def search_path(node,target, v, con_matrix):
+def rev_conn(node, con_matrix):
+    return np.where(con_matrix[:, node])[0].tolist()
+
+
+def search_path(node, target, v, con_matrix):
     r = 0
     # print(v)
     if v[target] == 1:
         # print(f'Found Path {np.where(np.array(v))[0].tolist()}')
         return 1
-        
+
     for n in conn(node, con_matrix):
         # print(f'visit {n}, trace {np.where(np.array(v))[0].tolist()}')
         # print(n)
@@ -54,12 +56,12 @@ def search_path(node,target, v, con_matrix):
 
             v2 = v.copy()
             v2[n] = 1
-            r += search_path(n,target, v2, con_matrix)
+            r += search_path(n, target, v2, con_matrix)
 
     return r
 
 
-s = search_path(0,num_nodes-1 ,[0]*num_nodes, con_matrix)
+s = search_path(0, num_nodes-1, [0]*num_nodes, con_matrix)
 print(f"Q1:{s}")
 # print(node_list[506])
 # decide score or not
@@ -94,7 +96,7 @@ def dec_c_alwaysFalse(v):
 #             return 1
 #         else:
 #             return 0
-        
+
 #     for n in conn(node, con_matrix):
 #         # print(f'visit {n}, trace {np.where(np.array(v))[0].tolist()}')
 #         # print(n)
@@ -113,75 +115,80 @@ def dec_c_alwaysFalse(v):
 
 def dist_field(node, v, con_matrix, d=0):
 
-    v[node]=d
-    # print(v)  
-        
+    v[node] = d
+    # print(v)
+
     for n in conn(node, con_matrix):
         # print(f'visit {n}, trace {np.where(np.array(v))[0].tolist()}')
         # print(n)
 
         # v[n] = min(v[n],d+1)
-        if v[n]>d+1 or v[n]==0:
+        if v[n] > d+1 or v[n] == 0:
             dist_field(n, v, con_matrix, d+1)
         else:
-            v[n]=d+1
-    
+            v[n] = d+1
 
     return v
+
+
 def dist_field_r(node, v, con_matrix, d=0):
 
-    v[node]=d
-    # print(v)  
-        
+    v[node] = d
+    # print(v)
+
     for n in rev_conn(node, con_matrix):
         # print(f'visit {n}, trace {np.where(np.array(v))[0].tolist()}')
         # print(n)
 
         # v[n] = min(v[n],d+1)
-        if v[n]<d-1 or v[n]==0:
+        if v[n] < d-1 or v[n] == 0:
             dist_field_r(n, v, con_matrix, d-1)
         else:
-            v[n]=d-1
-    
+            v[n] = d-1
 
     return v
 
-def dist_field_full(node,num_nodes,con_matrix):
 
-    pf=dist_field(node,[0]*num_nodes,con_matrix,0)
-    nf=dist_field_r(node,[0]*num_nodes,con_matrix,0)
+def dist_field_full(node, num_nodes, con_matrix):
 
-    return [p+n for p,n in zip(pf,nf)]
+    pf = dist_field(node, [0]*num_nodes, con_matrix, 0)
+    nf = dist_field_r(node, [0]*num_nodes, con_matrix, 0)
+
+    return [p+n for p, n in zip(pf, nf)]
+
 
 # node_list.index('svr')
 # node_list.index('fft')
 # node_list.index('dac')
 # node_list.index('out')
-fftf=dist_field_full(node_list.index('fft'),num_nodes,con_matrix)
-dacf=dist_field_full(node_list.index('dac'),num_nodes,con_matrix)
-valid_p1=[d1<=0 for d1 in fftf]
-valid_p2=[(d1>0 and d2<0) for d1,d2 in zip(fftf,dacf)]
-valid_p2[node_list.index('dac')]=1
-valid_p2[node_list.index('fft')]=1
-valid_p3=[d2>=0 for d2 in dacf]
+fftf = dist_field_full(node_list.index('fft'), num_nodes, con_matrix)
+dacf = dist_field_full(node_list.index('dac'), num_nodes, con_matrix)
+valid_p1 = [d1 <= 0 for d1 in fftf]
+valid_p2 = [(d1 > 0 and d2 < 0) for d1, d2 in zip(fftf, dacf)]
+valid_p2[node_list.index('dac')] = 1
+valid_p2[node_list.index('fft')] = 1
+valid_p3 = [d2 >= 0 for d2 in dacf]
 # print([(d1>=0 and d2<=0) for d1,d2 in zip(fftf,dacf)]) #fftf->dacf
 
 # print([(d1<=0 and d2>=0) for d1,d2 in zip(fftf,dacf)]) #ALL FALSE
 # print(dist_field_full(node_list.index('svr'),num_nodes,con_matrix))
-m1=np.array(valid_p1).reshape((1,-1))
-mask1=m1.T*m1
-m2=np.array(valid_p2).reshape((1,-1))
-mask2=m2.T*m2
-m3=np.array(valid_p3).reshape((1,-1))
-mask3=m3.T*m3
+m1 = np.array(valid_p1).reshape((1, -1))
+mask1 = m1.T*m1
+m2 = np.array(valid_p2).reshape((1, -1))
+mask2 = m2.T*m2
+m3 = np.array(valid_p3).reshape((1, -1))
+mask3 = m3.T*m3
 
-s1=search_path(node_list.index('svr'),node_list.index('fft'),[0]*num_nodes,con_matrix*mask1)
+s1 = search_path(node_list.index('svr'), node_list.index(
+    'fft'), [0]*num_nodes, con_matrix*mask1)
 # print(s1)
 
-s2=search_path(node_list.index('fft'),node_list.index('dac'),[0]*num_nodes,con_matrix*mask2)
+s2 = search_path(node_list.index('fft'), node_list.index(
+    'dac'), [0]*num_nodes, con_matrix*mask2)
 # print(s2)
 
-s3=search_path(node_list.index('dac'),node_list.index('out'),[0]*num_nodes,con_matrix*mask3)
+s3 = search_path(node_list.index('dac'), node_list.index(
+    'out'), [0]*num_nodes, con_matrix*mask3)
 # print(s3)
 
 print(f"Q2:{s1*s2*s3}")
@@ -191,7 +198,7 @@ print(f"Q2:{s1*s2*s3}")
 #     if v[target] == 1:
 #         # print(f'Found Path {np.where(np.array(v))[0].tolist()}')
 #         return 1
-        
+
 #     for n in conn(node, con_matrix):
 #         # print(f'visit {n}, trace {np.where(np.array(v))[0].tolist()}')
 #         # print(n)
